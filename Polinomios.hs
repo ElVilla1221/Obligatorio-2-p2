@@ -4,6 +4,8 @@
 {-# HLINT ignore "Redundant lambda" #-}
 {-# HLINT ignore "Redundant bracket" #-}
 {-# HLINT ignore "Use lambda-case" #-}
+{-# HLINT ignore "Use if" #-}
+{-# HLINT ignore "Collapse lambdas" #-}
 
 module Polinomios where
 
@@ -56,7 +58,8 @@ sumPol = \p1 -> \p2 -> case p1 of{
 --4)
 mulPol :: Polinomio -> Polinomio -> Polinomio
 mulPol =  \p1 -> \p2 -> case p1 of{
-    
+    []->[];
+    x:xs-> sumPol (mulMonPorPol x p2) (mulPol xs p2);
 }
 
 mulMon :: Monomio -> Monomio -> Monomio
@@ -68,20 +71,45 @@ mulMon = \m1 -> \m2 -> case m1 of{
     }
 }
 
+mulMonPorPol :: Monomio -> Polinomio -> Polinomio
+mulMonPorPol =  \m -> \p -> case p of{
+    []->[];
+    x:xs-> (mulMon m x):(mulMonPorPol m xs);
+} 
 
 --5)
 derPol :: Polinomio -> Polinomio
-derPol = undefined
+derPol = \p -> case p of{
+    []->[];
+    x:xs-> redPol ((derMon x):derPol xs);
+}
+
+derMon :: Monomio -> Monomio
+derMon = \m -> case m of{
+    (c,0)->(0,0);
+    (c,e)->(c*e,e-1);
+}
 
 --6)
 evalPol :: Polinomio -> Int -> Int
-evalPol = undefined
+evalPol = \p -> \i -> case p of{
+    []->0;
+    x:xs-> (evalMon x i) + (evalPol xs i);
+}
+
+evalMon :: Monomio -> Int -> Int
+evalMon = \m -> \i -> case m of{
+    (0,e)->0;
+    (c,e)-> c*(i^e);
+}
 
 --7)
 gradoPol::Polinomio -> Int
-gradoPol = undefined
-																	
-																	
+gradoPol = \p -> case p of{
+    []->0;
+    x:xs-> snd x;
+}
+														
 -- ======================
 -- SHOW
 -- ======================
@@ -117,7 +145,7 @@ showPol = \p -> case p of{
         ""-> showPol xs;
         s-> (showMon x) ++ auxiliarShowPol xs;
     }
-    }
+}
 
 auxiliarShowPol :: Polinomio -> String
 auxiliarShowPol = \p -> case p of{
@@ -129,3 +157,4 @@ auxiliarShowPol = \p -> case p of{
         }
     }
 }
+
